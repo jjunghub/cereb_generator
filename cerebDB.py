@@ -15,39 +15,51 @@ from akaExtractor import *
 from generateTagset_v2 import *
 from matchTags import *
 
+from cleansingAuthors import generate_cerebauthor_dict
+from matchingAuthors import matching_authors
+
+from cleansingPublication import cleansing_publications
 
 class CerebDB_Generator :
-    def __init__(self, crawlDBpath = 'backupdb.db') :
-        if crawlDBpath == 'AWS' :
-            self.papers, self.links = importDB_AWS()
-        else : 
-            self.papers, self.links = importDB_stored(crawlDBpath)
+	def __init__(self, crawlDBpath = 'backupdb.db') :
+		if crawlDBpath == 'AWS' :
+			self.papers, self.links = importDB_AWS()
+		else : 
+			self.papers, self.links = importDB_stored(crawlDBpath)
 
-        self.papers_clean = cleansing_papers(self.papers, ['scp'])
-        self.links_clean = cleansing_links(self.papers_clean, self.links)
-        self.papers_clean,self.keylist = additional_cleansing_for_keywords(self.papers_clean, 'keywords_author')
-        # papers_clean,keylist = additional_cleansing_for_keywords(papers_clean, 'keywords_other')
-        self.AKADict = aka_extractor(self.keylist)
+		self.papers_clean = cleansing_papers(self.papers, ['scp'])
+		self.links_clean = cleansing_links(self.papers_clean, self.links)
 
-        self.tagDict, self.rawToTag = genTagSet(self.keylist, self.AKADict)
-        # Takes a while
-        self.cerebDB = matchTags(self.rawToTag, self.papers_clean)
+		self.papers_clean, self.keylist = additional_cleansing_for_keywords(self.papers_clean, 'keywords_author')
+		### papers_clean,keylist = additional_cleansing_for_keywords(papers_clean, 'keywords_other')
+		
+		self.AKADict = aka_extractor(self.keylist)
 
+		self.tagDict, self.rawToTag = genTagSet(self.keylist, self.AKADict)
+		
+		# # Takes a while
+		self.cerebDB = matchTags(self.rawToTag, self.papers_clean)
 
-    def getCerebDB() :
-        return self.cerebDB
+		self.cerebDB = cleansing_publications(self.cerebDB)
+		
+		self.AuthorDict = generate_cerebauthor_dict(self.cerebDB)
 
-    def getCerebLink() :
-        return self.links_clean
+		self.cerebDB = matching_authors(self.cerebDB, self.AuthorDict)
 
-    def getTagDict() :
-        return self.tagDict
+	def getCerebDB() :
+		return self.cerebDB
 
-    def getRawToTag() :
-        return self.rawToTag
+	def getCerebLink() :
+		return self.links_clean
+
+	def getTagDict() :
+		return self.tagDict
+
+	def getRawToTag() :
+		return self.rawToTag
 
 
 if __name__ == "__main__" :
-    CerebDB_Generator()
+	CerebDB_Generator()
 
 
