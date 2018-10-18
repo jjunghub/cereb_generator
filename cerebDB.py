@@ -26,12 +26,14 @@ class CerebDB_Generator :
 			self.papers, self.links = importDB_AWS()
 		else : 
 			self.papers, self.links = importDB_stored(crawlDBpath)
-
+		# import pickle as pk
+		# self.papers = pk.load(open("1016_papers.pkl", "rb"))
+		
 		self.papers_clean = cleansing_papers(self.papers, ['scp'])
-		self.links_clean = cleansing_links(self.papers_clean, self.links)
+		# self.links_clean = cleansing_links(self.papers_clean, self.links)
 
 		self.papers_clean, self.keylist = additional_cleansing_for_keywords(self.papers_clean, 'keywords_author')
-		### papers_clean,keylist = additional_cleansing_for_keywords(papers_clean, 'keywords_other')
+		# ### papers_clean,keylist = additional_cleansing_for_keywords(papers_clean, 'keywords_other')
 		
 		self.AKADict = aka_extractor(self.keylist)
 
@@ -46,6 +48,9 @@ class CerebDB_Generator :
 
 		self.cerebDB = matching_authors(self.cerebDB, self.AuthorDict)
 
+		import pickle as pk
+		pk.dump(self.cerebDB, open("cerebDB.pkl" ,"wb"))
+		
 	def getCerebDB() :
 		return self.cerebDB
 
@@ -60,6 +65,6 @@ class CerebDB_Generator :
 
 
 if __name__ == "__main__" :
-	CerebDB_Generator()
+	CerebDB_Generator('AWS')
 
 

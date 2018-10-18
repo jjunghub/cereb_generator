@@ -65,6 +65,7 @@ def generate_cerebauthor_dict(paper_):
 	
 	d1,d2,d3,d4 = get_isin_dict(others_notdup, ['scp_auid', 'wos_auid', 'email', 'name_chk_key'])
 	others_dupdup['cereb_auid'] = others_dupdup[['scp_auid', 'email', 'wos_auid', 'name_chk_key']].apply(lambda x : assign_cerebauid_dup_check(x, d1, d2, d3, d4), axis=1)
+	print(" checking not assigend length {}".format(len(others_dupdup[ others_dupdup['cereb_auid'].isna() ])))
 
 	total_df = dfupdated.append(others_notdup.set_index('name_chk_key', drop=False), sort=False)
 	total_df = total_df.append(others_dupdup.set_index('name_chk_key', drop=False), sort=False)
@@ -75,6 +76,7 @@ def generate_cerebauthor_dict(paper_):
 		'cereb_auid' : lambda x : list(set(x))
 	})
 	namekey_to_cerebid['cereb_auid'] = namekey_to_cerebid['cereb_auid'].apply(lambda x : x[0] if len(x) == 1 else x)
+
 	cerebgroup = total_df.groupby(by='cereb_auid').agg({
 		'fullname' : lambda x : x.iloc[0],
 		'lastname' : lambda x : get_(x),
@@ -88,13 +90,16 @@ def generate_cerebauthor_dict(paper_):
 		'scp_auid' : lambda x : get_(x),
 		'name_variants' : sum
 	})
-
+	cerebgroup.to_pickle("cerebgroup.pkl")
+	
 	cerebauthor_dict = dict()
 	cerebgroup['cereb_auid'] = cerebgroup.index
 	for c in ['scp_auid', 'wos_auid', 'email']:
 		cerebauthor_dict[c] = cerebgroup[ cerebgroup[c].isnull() == False][[c, 'cereb_auid']].set_index(c).to_dict(orient='index')
 	cerebauthor_dict['name_chk_key'] = namekey_to_cerebid.to_dict(orient='index')
-
+	for name in cerebauthor_dict['name_chk_key'].keys():
+		if type(cerebauthor_dict['name_chk_key'][name]['cereb_auid']) == list:
+			cerebauthor_dict['name_chk_key'][name]['cereb_auid'] = [ id_ for id_ in cerebauthor_dict['name_chk_key'][name]['cereb_auid'] if id_ != None]
 	return cerebauthor_dict
 
 def share_info_among_same_people(df, iselse=False):

@@ -8,7 +8,6 @@ import re, ast
 def matching_authors(paperclean, cerebauthor_dict):
 	print(blue("matching authors start"))
 	paperclean['authors'] = paperclean['authors'].apply(lambda x : norm_authors(x, cerebauthor_dict))
-	paperclean.drop(columns=['authors'], inplace=True)
 	print(blue("Done matching authors !"))
 	return paperclean
 
@@ -26,7 +25,7 @@ def get_cerebid_(au, authkeys):
 
 def norm_authors(x, cerebauthor_dict):
 	if str(x) == 'nan' or str(x)=='None': return
-	axvauthor, scpauthor, wosauthor, ieeeauthor = get_authors_list(x)
+	axvauthor, scpauthor, wosauthor, ieeeauthor = get_authors_list(x)	
 	ids = []
 	for a, s, w, i in zip(axvauthor, scpauthor, wosauthor, ieeeauthor):
 		full, _, src_ = get_fullnames(a,s,w,i)
@@ -56,6 +55,7 @@ def norm_authors(x, cerebauthor_dict):
 			au.update_au(a,s,w,i)
 			if au.fullname.strip() != '':
 				cerebau = get_cerebid_(au, cerebauthor_dict)
-					if cerebau != None:
-						ids.append(cerebau)
-	return ids
+				if cerebau != None:
+					ids.append(cerebau)
+	if len(ids) > 0:
+		return ids
