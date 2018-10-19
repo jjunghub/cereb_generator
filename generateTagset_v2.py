@@ -39,6 +39,7 @@ def step1_stem_compare(keylist) :
     uni_counts = pd.Series(unique.values)
     stemmed_keys = uni_keys.apply(lambda x: tokenize_and_stem_and_connect(x))
 
+    # group을 저장해놓고, keyDetected 업데이트. 뒤바뀌면 rawkeyToTag의 변화
     group = pd.DataFrame({
         'rawkeys' : uni_keys,
         'stemmed' : stemmed_keys,
@@ -108,7 +109,7 @@ def combine(tagDict, a,b, cnt=[0]) :
     tagDict.at[i,'keyDetected'] = data_a.keyDetected.values[0] + data_b.keyDetected.values[0]
     
     tagDict.drop(j, inplace=True)
-#     print('yes')
+#     prin('yes')
 
     cnt[0] = cnt[0] + 1
     # if a == 'ml'  :

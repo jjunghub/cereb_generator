@@ -13,19 +13,21 @@ def step_matching(rawToTag, keylist, cnt) :
     cnt[0] = cnt[0] + 1
     if cnt[0] % 500 == 0 :
         print('processing : {}th papers'.format(cnt[0]))
-    return list(set([list(rawToTag[rawToTag.rawkey == each].tag)[0] for each in keylist]))
+    # keylist에 있는 모든 each가 rawToTag의 key로 있는거라같아 예외처리는 안했습니다..
+    return list(set( [ rawToTag[each]['tag']  for each in keylist] ))
 
 def matchTags(rawToTag, papers) :
     print(blue('\n=> matching Tags and generating cerebDB..'))
     if 'rawkeys' not in papers.columns :
         print(red('rawkeys column not exist. Please run additional cleansing module.'))
         return
-    
+    rawtotagDict = rawtotag.set_index("rawkey", drop=True).to_dict(orient='index')
+
     cereb_db = papers.set_index('p_id')
     cereb_db.sort_values('max_cite', ascending=False, inplace=True)
 
     cnt = [0]
-    cereb_db['tags'] = cereb_db[cereb_db['rawkeys'].isna() == False].rawkeys.apply(lambda x: step_matching(rawToTag, x, cnt))
+    cereb_db['tags'] = cereb_db[cereb_db['rawkeys'].isna() == False].rawkeys.apply(lambda x: step_matching(rawtotagDict, x, cnt))
 
     print(blue('Done. Total {:,} papers, with {:,} papers with tags'.format(len(cereb_db), len(cereb_db[cereb_db.tags.isna()==False]))))
     print(cereb_db[cereb_db.tags.isna() == False].head(10))
