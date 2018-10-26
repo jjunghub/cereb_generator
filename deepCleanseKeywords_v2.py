@@ -158,7 +158,4 @@ def additional_cleansing_for_keywords(papers_clean, keytype = 'keywords_author')
     # AKA = aka_extractor(keylist)
 
     # keylist = remove_bracket(keylist)
-
-
-
     return papers_clean, keylist

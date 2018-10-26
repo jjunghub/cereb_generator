@@ -93,10 +93,10 @@ def cleanse_keywords(x, case=['scp', 'wos', 'ieee']) :
     return keywords
 
 
-def cleansing_papers(papers, keywordCase=['scp', 'wos', 'ieee']) :
+def cleansing_papers(papers, keywordCase=['scp', 'wos', 'ieee']):
     print(blue('\n=> Cleansing and extracting representative values of papers..'))
 
-    temp = papers.loc[:,['p_id', 'title', 'n_cite', 'pub_year', 'keywords' , 'abstract']]
+    temp = papers.loc[:,['p_id', 'title', 'n_cite', 'pub_year', 'keywords' , 'abstract', 'authors', 'publication']]
     temp["sources"] = temp.title.apply(lambda x :str(list(dt(x).keys())))
     temp["title"] = temp.title.apply(cleanse_title)
     temp["max_cite"] = temp.n_cite.apply(cleanse_ncite)
@@ -111,7 +111,8 @@ def cleansing_papers(papers, keywordCase=['scp', 'wos', 'ieee']) :
     temp.abstract[temp.abstract.isna()] = np.nan
     temp.title[temp.title.isna()] = np.nan
 
-    dataset = temp[['p_id', 'title', 'abstract', 'keywords_author', 'keywords_other', 'max_cite', 'pub_year', 'sources']] 
+    dataset = temp[['p_id', 'title', 'abstract', 'keywords_author', 'keywords_other', 
+        'max_cite', 'pub_year','authors', 'publication', 'sources']]
     # dataset.columns = ['p_id', 'title', 'abstract', 'keywords_author', 'keywords_other', 'max_cite', 'pub_year', 'sources']
 
     pd.set_option('display.max_colwidth', 30)
