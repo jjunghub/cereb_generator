@@ -59,3 +59,5 @@ def norm_authors(x, cerebauthor_dict):
 					ids.append(cerebau)
 	if len(ids) > 0:
 		return ids
+	else:
+		return None

@@ -38,7 +38,7 @@ def aka_extractor(keylist) :
 
     aka = aka[aka.short.notnull()]
     aka['short'] = aka.short.apply(lambda x : x[1:-1])
-
+    
     cond_swap = aka.apply(lambda x: len(x.long) < len(x.short), axis=1)
 
     temp = aka[cond_swap].long

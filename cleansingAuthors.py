@@ -38,8 +38,9 @@ def generate_cerebauthor_dict(paper_):
 	print(blue("assigned cereb_auid to full-authors, len : {}".format(len(notdup))))
 
 	# not process others & dup-with-fullauthor 
-	normal_df = pd.DataFrame(normalname)[['email', 'scp_auid', 'wos_auid', 'name_chk_key', 'fullname', 'firstname', 'lastname', 'name_variants']]
-	hard_df = pd.DataFrame(hardname)[['email', 'scp_auid', 'wos_auid', 'name_chk_key', 'fullname', 'firstname', 'lastname', 'name_variants']]
+	
+	normal_df = pd.DataFrame(normalname)[['fullname', 'lastname', 'name_chk_key', 'firstname', 'keywords', 'email', 'affiliations', 'publications', 'wos_auid', 'scp_auid', 'name_variants']]
+	hard_df = pd.DataFrame(hardname)[['fullname', 'lastname', 'name_chk_key', 'firstname', 'keywords', 'email', 'affiliations', 'publications', 'wos_auid', 'scp_auid', 'name_variants']]
 	others = pd.DataFrame().append(normal_df,sort=False).append(hard_df,sort=False)
 	others = others.append(dupdup,sort=False).reset_index(drop=True) 
 
@@ -71,6 +72,16 @@ def generate_cerebauthor_dict(paper_):
 	total_df = total_df.append(others_dupdup.set_index('name_chk_key', drop=False), sort=False)
 
 	print(blue("processing others done... now making cereb_authors_dict"))
+	# total_df.to_pickle("total_df.pkl")
+	def to_None(x):
+		if x==None or len(x) == 0:
+			return None
+		elif type(x)==dict and len(list(x.keys()))==0:
+			return None
+		else:
+			return x
+	total_df['affiliations'] = total_df['affiliations'].apply(lambda x : to_None(x))
+	total_df['keywords'] = total_df['keywords'].apply(lambda x : to_None(x))
 
 	namekey_to_cerebid = total_df[['name_chk_key', 'cereb_auid']].groupby(by='name_chk_key').agg({
 		'cereb_auid' : lambda x : list(set(x))
@@ -82,7 +93,7 @@ def generate_cerebauthor_dict(paper_):
 		'lastname' : lambda x : get_(x),
 		'name_chk_key' : lambda x: x.iloc[0],
 		'firstname' : lambda x : get_(x),
-		'keywords' : lambda x : x.iloc[0],
+		'keywords' : lambda x : merge_keywords(x),
 		'email' : lambda x : get_(x),
 		'affiliations' : lambda x : x.iloc[0],
 		'publications' : lambda x : x.iloc[0],
@@ -90,7 +101,7 @@ def generate_cerebauthor_dict(paper_):
 		'scp_auid' : lambda x : get_(x),
 		'name_variants' : sum
 	})
-	cerebgroup.to_pickle("cerebgroup.pkl")
+	# cerebgroup.to_pickle("cerebgroup.pkl")
 	
 	cerebauthor_dict = dict()
 	cerebgroup['cereb_auid'] = cerebgroup.index
@@ -100,7 +111,7 @@ def generate_cerebauthor_dict(paper_):
 	for name in cerebauthor_dict['name_chk_key'].keys():
 		if type(cerebauthor_dict['name_chk_key'][name]['cereb_auid']) == list:
 			cerebauthor_dict['name_chk_key'][name]['cereb_auid'] = [ id_ for id_ in cerebauthor_dict['name_chk_key'][name]['cereb_auid'] if id_ != None]
-	return cerebauthor_dict
+	return cerebauthor_dict, cerebgroup
 
 def share_info_among_same_people(df, iselse=False):
 	def sharing(x, dict_, k1, k2):
@@ -394,3 +405,17 @@ def get_(x):
 		if i!= None:
 			return i
 	return None
+
+def merge_keywords(x):
+	c = dict()
+	for xx in x:
+		if xx == None:
+			continue
+		if type(xx) != dict:
+			continue
+		for xk in xx.keys():
+			c.setdefault(xk, 0)
+			c[xk]+=1
+	if len(list(c.keys()))==0:
+		return None
+	return c

@@ -58,7 +58,7 @@ def step1_stem_compare(keylist) :
 
     print(yellow('Done. {:,} unique rawkeys are clustered to {:,} tags').format(len(uni_keys), len(tagDict)))
 
-    return tagDict
+    return group, tagDict
 
 def step2_aka_compare(tagDict, akaDict) :
     print(yellow('Step2. AKA compare.'))
@@ -78,7 +78,7 @@ def step3_bracket_compare(tagDict) :
     cnt = [0]
     bracket_td = tagDict[tagDict.tag.apply(lambda x :re.compile('[(].+?[)]').search(x) != None)] 
     bracket_td.apply(lambda x: combine(tagDict, tokenize_and_stem_and_connect(x.tag), re.sub(r'[(].+?[)]','', tokenize_and_stem_and_connect(x.tag)).strip(), cnt), axis=1)
-
+    
     print('total {:,} bracket removed & combine with existing group.'.format(cnt[0]))
 
     return tagDict
@@ -125,7 +125,7 @@ def genTagDict(keylist=None, akaDict=None) :
         print('TODO : get keylist from cerebDB directly')
         return
     
-    tagDict = step1_stem_compare(keylist)
+    group, tagDict = step1_stem_compare(keylist)
     if akaDict != None : step2_aka_compare(tagDict, akaDict)
     step3_bracket_compare(tagDict)
 
@@ -135,7 +135,7 @@ def genTagDict(keylist=None, akaDict=None) :
     # print(df_rawkeys.key.value_counts())
     print(tagDict)
 
-    return tagDict
+    return group, tagDict
 
 
 def spreading(x, rawToTag) :
@@ -158,8 +158,8 @@ def genRawToTag(tagDict) :
 
 
 def genTagSet(keylist=None, akaDict=None) :
-    tagDict = genTagDict(keylist, akaDict)
+    group, tagDict = genTagDict(keylist, akaDict)
     rawToTag = genRawToTag(tagDict)
 
-    return tagDict, rawToTag
+    return group, tagDict, rawToTag
 

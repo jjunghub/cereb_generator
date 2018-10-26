@@ -93,7 +93,7 @@ def cleanse_keywords(x, case=['scp', 'wos', 'ieee']) :
     return keywords
 
 
-def cleansing_papers(papers, keywordCase=['scp', 'wos', 'ieee']) :
+def cleansing_papers(papers, keywordCase=['scp', 'wos', 'ieee']):
     print(blue('\n=> Cleansing and extracting representative values of papers..'))
 
     temp = papers.loc[:,['p_id', 'title', 'n_cite', 'pub_year', 'keywords' , 'abstract', 'authors', 'publication']]

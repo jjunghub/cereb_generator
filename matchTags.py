@@ -16,12 +16,12 @@ def step_matching(rawToTag, keylist, cnt) :
     # keylist에 있는 모든 each가 rawToTag의 key로 있는거라같아 예외처리는 안했습니다..
     return list(set( [ rawToTag[each]['tag']  for each in keylist] ))
 
-def matchTags(rawToTag, papers) :
+def matchingTags(rawToTag, papers):
     print(blue('\n=> matching Tags and generating cerebDB..'))
     if 'rawkeys' not in papers.columns :
         print(red('rawkeys column not exist. Please run additional cleansing module.'))
         return
-    rawtotagDict = rawtotag.set_index("rawkey", drop=True).to_dict(orient='index')
+    rawtotagDict = rawToTag.set_index("rawkey", drop=True).to_dict(orient='index')
 
     cereb_db = papers.set_index('p_id')
     cereb_db.sort_values('max_cite', ascending=False, inplace=True)

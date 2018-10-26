@@ -58,7 +58,11 @@ class Author:
             self.wos_auid = str(self.wos_auid)
         if self.scp_auid:
             self.scp_auid = str(self.scp_auid)
-            
+        if len(self.affiliations) == 0:
+            self.affiliations = None
+        if len(self.name_variants) == 0:
+            self.name_variants = None
+
         dict_ = { 'keywords' : dict(), 'email' : self.email, 'name_chk_key': self.name_chk_key,
             'affiliations' : self.affiliations, 'publications' : self.publications,
             'firstname' : self.firstname, 'lastname' : self.lastname, 'fullname' :self.fullname,

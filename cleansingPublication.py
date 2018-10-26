@@ -10,30 +10,33 @@ def cleansing_publications(paper):
 
 def get_repre_pbc(pbc):
 	src = ['scp', 'wos', 'axv', 'ieee']
-	repre = ''
-	if str(pbc) == 'nan': return NaN
+	repre = None
+	if str(pbc) == 'nan' or str(pbc) == 'None': 
+		return None
+		
 	for s in src:
 		pbc_dict = ast.literal_eval(str(pbc))
+		if pbc_dict == None: continue
 		if pbc_dict.get(s):
 			repre = cleansing(pbc_dict.get(s).replace(' & ', ' and ').replace('&', ' and ').strip())
-			if repre != '':
+			if repre != None:
 				break
-	if repre!='':
+	if repre!=None:
 		repre = cleansing(repre.strip())
-	if repre == '':
-		return NaN
+	if repre == None:
+		return None
 	else:
 		return repre
 
 def cleansing(x):
 	if str(x).isdigit():
-		return ''
+		return None
 
 	if is_date(x):
-		return ''
+		return None
 
 	if x.upper() == 'WWW':
-		return ''
+		return None
 	
 	match = re.compile(r'[0-9]{1,3}(th|rd|nd|st)').search(x)
 	if match:
@@ -49,7 +52,8 @@ def cleansing(x):
 	if match:
 		x = re.compile(r'[^\w\s]|\d').sub('', x).strip()	
 
-	if x == '': return ''
+	if x == '' or x == None:
+		return None
 	return x
 
 def is_date(x):
